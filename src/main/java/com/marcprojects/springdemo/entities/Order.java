@@ -53,8 +53,8 @@ public class Order implements Serializable{
 		setOrderStatus(orderStatus);
 	}
 
-	public Double total() {
-		return 1.1;
+	public Double getTotal() {
+		return items.stream().map(item->item.getSubTotal()).reduce(0.0, (Double acc, Double curr)->curr+acc);
 	}
 
 	public Integer getId() {
