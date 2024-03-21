@@ -3,10 +3,13 @@ package com.marcprojects.springdemo.services;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import com.marcprojects.springdemo.entities.User;
 import com.marcprojects.springdemo.repositories.UserRepository;
+import com.marcprojects.springdemo.services.exceptions.DatabaseException;
+import com.marcprojects.springdemo.services.exceptions.ResourceNotFoundException;
 
 @Service
 public class UserService {
@@ -18,7 +21,7 @@ public class UserService {
 	}
 	
 	public User findById(Integer id) {
-		return repository.findById(id).get();
+		return repository.findById(id).orElseThrow(()->new ResourceNotFoundException(id));
 	}
 	
 	public User insert(User user){
@@ -26,7 +29,12 @@ public class UserService {
 	}
 	
 	public void delete(Integer id) {
-		repository.deleteById(id);
+		repository.findById(id).orElseThrow(()->new ResourceNotFoundException(id));
+		try {
+			repository.deleteById(id);						
+		}catch(DataIntegrityViolationException ex) {
+			throw new DatabaseException(ex.getMessage());
+		}
 	}
 	
 	public User update(User data, Integer id) {
