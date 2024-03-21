@@ -11,6 +11,8 @@ import com.marcprojects.springdemo.repositories.UserRepository;
 import com.marcprojects.springdemo.services.exceptions.DatabaseException;
 import com.marcprojects.springdemo.services.exceptions.ResourceNotFoundException;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @Service
 public class UserService {
 	@Autowired
@@ -38,9 +40,13 @@ public class UserService {
 	}
 	
 	public User update(User data, Integer id) {
-		User user = repository.getReferenceById(id);
-		updateData(user, data);
-		return repository.save(user);
+		try {
+			User user = repository.getReferenceById(id);
+			updateData(user, data);
+			return repository.save(user);
+		}catch(EntityNotFoundException ex) {
+			throw new ResourceNotFoundException(id);
+		}
 	}
 	
 	private static void updateData(User entity, User data) {
